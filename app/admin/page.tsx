@@ -3,12 +3,13 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, SubmitEvent, useEffect, useState } from "react";
 
-type Story = { title: string; date: string; text: string };
-type Letter = { title: string; message: string };
-type Memory = { title: string; image: string; caption: string };
-type Wish = { text: string; done: boolean };
+type Story = { id?: string; title: string; date: string; text: string };
+type Letter = { id?: string; title: string; message: string };
+type Wish = { id?: string; text: string; done: boolean };
+type Memory = { id?: string; title: string; image: string; caption: string };
+
 type SiteData = {
   names: string;
   startDate: string;
@@ -19,37 +20,20 @@ type SiteData = {
   wishes: Wish[];
 };
 
-const KEY = "olu-site-data-v1";
-const defaults: SiteData = {
-  names: "Kamu & Aku",
-  startDate: "2024-02-14",
-  note: "Di antara miliaran manusia, semesta selalu punya cara untuk mempertemukan kita.",
-  stories: [
-    {
-      title: "Awal dari kita",
-      date: "14 Februari 2024",
-      text: "Satu pertemuan sederhana yang perlahan menjadi cerita paling berarti.",
-    },
-  ],
-  letters: [
-    {
-      title: "Buka saat kamu lelah",
-      message:
-        "Istirahat dulu, ya. Kamu tidak harus menyelesaikan semuanya hari ini. Aku bangga sama kamu, selalu.",
-    },
-  ],
-  memories: [],
-  wishes: [
-    { text: "Melihat matahari terbit bersama", done: false },
-    { text: "Mencoba tempat makan yang belum pernah dikunjungi", done: false },
-  ],
-};
 
 export default function AdminPage() {
   const supabase = createClient();
   const router = useRouter();
 
-  const [data, setData] = useState<SiteData>(defaults);
+  const [data, setData] = useState<SiteData>({
+    names: "",
+    startDate: "",
+    note: "",
+    stories: [],
+    letters: [],
+    memories: [],
+    wishes: [],
+  });
   const [active, setActive] = useState("overview");
   const [saved, setSaved] = useState(false);
   const [story, setStory] = useState<Story>({ title: "", date: "", text: "" });
@@ -60,77 +44,523 @@ export default function AdminPage() {
   const [memoryImage, setMemoryImage] = useState("");
   const [notice, setNotice] = useState("");
 
+
+  // FUNGSI UNTUK SIDEBAR PENGATURAN
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) setData({ ...defaults, ...JSON.parse(raw) });
-    } catch {}
+    async function loadSettings() {
+      const { data: settings, error } = await supabase
+        .from("site_settings")
+        .select("*")
+        .eq("id", 1)
+        .maybeSingle();
+
+      if (error) {
+        setNotice("Gagal memuat pengaturan dari database.");
+        console.error("Gagal memuat pengaturan:", error);
+        return;
+      }
+
+      if (settings) {
+        setData((current) => ({
+          ...current,
+          names: settings.name,
+          startDate: settings.start_date,
+          note: settings.note,
+        }));
+      }
+    }
+
+    loadSettings();
   }, []);
 
-  function persist(next: SiteData) {
+  async function persist(next: SiteData) {
     setData(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
-    window.dispatchEvent(new Event("olu-update"));
+    setSaved(false);
+    setNotice("");
+
+    const { error } = await supabase
+      .from("site_settings")
+      .upsert({
+        id: 1,
+        names: next.names,
+        start_date: next.startDate,
+        note: next.note,
+        updated_at: new Date().toISOString(),
+      },
+        { onConflict: "id" }
+      );
+
+    if (error) {
+      setNotice("Gagal menyimpan pengaturan ke database.");
+      console.error("Gagal menyimpan pengaturan:", error);
+      return;
+    }
+
     setSaved(true);
-    setNotice("Perubahan tersimpan di browser ini.");
-    window.setTimeout(() => setSaved(false), 2400);
+    setNotice("Perubahan berhasil disimpan.");
+    window.setTimeout(() => setSaved(false), 2000);
   }
 
-  function addStory(e: FormEvent) {
+  // FUNGSI UNTUK SIDEBAR STORY
+  useEffect(() => {
+    async function loadStories() {
+      const { data: stories, error } = await supabase
+        .from("stories")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        setNotice("Gagal memuat Our Story dari database.");
+        console.error("Gagal memuat cerita:", error);
+        return;
+      }
+
+      setData((current) => ({
+        ...current,
+        stories: stories ?? [],
+      }));
+    }
+    loadStories();
+  }, []);
+
+  // Fungsi untuk menambahkan cerita baru ke database
+  async function addStory(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
+
     if (!story.title.trim() || !story.text.trim()) return;
-    persist({ ...data, stories: [...data.stories, story] });
+
+    const { data: newStory, error } = await supabase
+      .from("stories")
+      .insert({
+        title: story.title.trim(),
+        date: story.date.trim(),
+        text: story.text.trim(),
+      })
+      .select("id, title, date, text")
+      .single();
+
+    if (error) {
+      setNotice("Gagal menambahkan cerita ke database.");
+      console.error("Gagal menambahkan cerita:", error);
+      return;
+    }
+
+    setData((current) => ({
+      ...current,
+      stories: [...current.stories, newStory],
+    }));
+
     setStory({ title: "", date: "", text: "" });
+    setSaved(true);
+    setNotice("Cerita berhasil ditambahkan.");
+
+
+    window.setTimeout(() => setSaved(false), 2000);
   }
-  function addLetter(e: FormEvent) {
+
+  // Fungsi untuk menghapus cerita dari database
+  async function removeStory(story: Story) {
+    if (!story.id) {
+      setNotice("ID cerita tidak ditemukan. Muat ulang halaman.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("stories")
+      .delete()
+      .eq("id", story.id);
+
+    if (error) {
+      setNotice("Gagal menghapus cerita dari database.");
+      console.error("Gagal menghapus cerita:", error);
+      return;
+    }
+
+    setData((current) => ({
+      ...current,
+      stories: current.stories.filter((s) => s.id !== story.id),
+    }));
+
+    setSaved(true);
+    setNotice("Cerita berhasil dihapus.");
+    window.setTimeout(() => setSaved(false), 2000);
+  }
+
+  // FUNGSI UNTUK SIDEBAR LETTER
+  useEffect(() => {
+    async function loadLetters() {
+      const { data: letters, error } = await supabase
+        .from("letters")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        setNotice("Gagal memuat surat dari database.");
+        console.error("Gagal memuat surat:", error);
+        return;
+      }
+
+      setData((current) => ({
+        ...current,
+        letters: letters ?? [],
+      }));
+    }
+    loadLetters();
+  }, []);
+
+  // Fungsi untuk menambahkan surat baru ke database
+  async function addLetter(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
+
     if (!letter.title.trim() || !letter.message.trim()) return;
-    persist({ ...data, letters: [...data.letters, letter] });
+
+    const { data: newLetter, error } = await supabase
+      .from("letters")
+      .insert({
+        title: letter.title.trim(),
+        message: letter.message.trim(),
+      })
+      .select("id, title, message")
+      .single();
+
+    if (error) {
+      setNotice("Gagal menyimpan surat ke database");
+      console.error("Gagal menyimpan surat ke database:", error);
+      return;
+    }
+
+    setData((current) => ({
+      ...current,
+      letters: [...current.letters, newLetter],
+    }));
+
     setLetter({ title: "", message: "" });
+    setSaved(true);
+    setNotice("Surat berhasil disimpan ke database.");
+
+    window.setTimeout(() => setSaved(false), 2000);
   }
-  function addWish(e: FormEvent) {
+
+  // Fungsi untuk mengahapus surat dari database
+  async function removeLetter(letter: Letter) {
+    if (!letter.id) {
+      setNotice("ID surat tidak ditemukan. Muat ulang halaman.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("letters")
+      .delete()
+      .eq("id", letter.id);
+
+    if (error) {
+      setNotice("Gagal menghapus surat dari database.");
+      console.error("Gagal menghapus surat dari database:", error);
+      return;
+    }
+
+    setData((current) => ({
+      ...current,
+      letters: current.letters.filter((l) => l.id !== letter.id),
+    }));
+
+    setSaved(true);
+    setNotice("Surat berhasil dihapus dari database.");
+    window.setTimeout(() => setSaved(false), 2000);
+  }
+
+  // FUNGSI UNTUK SIDEBAR WISH
+  useEffect(() => {
+    async function loadwishes() {
+      const { data: wishes, error } = await supabase
+        .from("wishes")
+        .select("id, text, done")
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        setNotice("Gagal memuat Bucket List dari database.");
+        console.error("Gagal memuat wish:", error);
+        return;
+      }
+
+      setData((current) => ({
+        ...current,
+        wishes: wishes ?? [],
+      }));
+    }
+    loadwishes();
+  }, []);
+
+  // Fungsi untuk menambahkan wish baru ke database
+  async function addWish(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
+
     if (!wish.trim()) return;
-    persist({
-      ...data,
-      wishes: [...data.wishes, { text: wish.trim(), done: false }],
-    });
+
+    const { data: newWish, error } = await supabase
+      .from("wishes")
+      .insert({
+        text: wish.trim(),
+        done: false,
+      })
+      .select("id, text, done")
+      .single();
+
+    if (error) {
+      setNotice("Gagal menyimpan wish ke database.");
+      console.error("Gagal menyimpan wish ke database:", error);
+      return;
+    }
+
+    setData((current) => ({
+      ...current,
+      wishes: [...current.wishes, newWish],
+    }));
+
     setWish("");
+    setSaved(true);
+    setNotice("Wish berhasil disimpan ke database.");
+    window.setTimeout(() => setSaved(false), 2000);
   }
-  function uploadPhoto(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+
+  // Fungsi untuk checkbox wish done
+  async function toggleWish(wish: Wish) {
+
+    if (!wish.id) {
+      setNotice("ID wish tidak ditemukan. Muat ulang halaman.");
+      return;
+    }
+
+    const nextDone = !wish.done;
+
+    const { error } = await supabase
+      .from("wishes")
+      .update({
+        done: nextDone,
+      })
+      .eq("id", wish.id);
+
+    if (error) {
+      setNotice("Gagal memperbarui status wish.");
+      console.error("Gagal memperbarui status wish:", error);
+      return;
+    }
+
+    setData((current) => ({
+      ...current,
+      wishes: current.wishes.map((item) => item.id === wish.id ? { ...item, done: nextDone } : item),
+    }));
+
+    setNotice("Status wish berhasil diperbarui.");
+  }
+
+  // Fungsi untuk menghapus wish dari database
+  async function removeWish(wish: Wish) {
+
+    if (!wish.id) {
+      setNotice("ID wish tidak ditemukan. Muat ulang halaman.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("wishes")
+      .delete()
+      .eq("id", wish.id);
+
+    if (error) {
+      setNotice("Gagal menghapus wish dari database.");
+      console.error("Gagal menghapus wish dari database:", error);
+      return;
+    }
+
+    setData((current) => ({
+      ...current,
+      wishes: current.wishes.filter((item) => item.id !== wish.id),
+    }));
+
+    setNotice("Wish berhasil dihapus dari database.");
+  }
+
+  // FUNGSI UNTUK SIDEBAR OUR GALERY
+  useEffect(() => {
+    async function loadMemories() {
+      const { data: memoriesData, error } = await supabase
+        .from("memories")
+        .select("id, title, image_path, caption")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Gagal memuat foto kenangan:", error);
+        setNotice("Gagal memuat daftar foto kenangan.");
+        return;
+      }
+
+      const memories: Memory[] = (memoriesData ?? []).map((item) => {
+        const { data: publicUrlData } = supabase.storage
+          .from("memories")
+          .getPublicUrl(item.image_path);
+
+        return {
+          id: item.id,
+          title: item.title,
+          image: publicUrlData.publicUrl,
+          caption: item.caption,
+        };
+      });
+
+      setData((current) => ({
+        ...current,
+        memories,
+      }));
+    }
+    loadMemories()
+  }, [])
+
+  // Fungsi untuk upload foto 
+  async function uploadPhoto(file: File, input: HTMLInputElement) {
     if (!file.type.startsWith("image/")) {
-      setNotice("Pilih file gambar.");
+      setNotice("Pilih file gambar yang valid.");
       return;
     }
-    if (file.size > 1_000_000) {
-      setNotice(
-        "Untuk demo lokal, pilih gambar di bawah 1 MB. Upload online akan kita buat lewat Supabase.",
-      );
+
+    if (file.size > 5 * 1024 * 1024) {
+      setNotice("Ukuran gambar maksimal 5 MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const memory = {
+
+    const filePath = `${crypto.randomUUID()}-${file.name.replace(
+      /[^a-zA-Z0-9._-]/g,
+      "_"
+    )}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("memories")
+      .upload(filePath, file, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      setNotice("Gagal mengunggah gambar ke storage.");
+      console.error("Upload foto gagal:", uploadError);
+      return;
+    }
+
+    const { data: newMemory, error: insertError } = await supabase
+      .from("memories")
+      .insert({
         title: memoryTitle.trim() || file.name.replace(/\.[^.]+$/, ""),
-        image: String(reader.result),
+        image_path: filePath,
         caption: memoryCaption.trim(),
-      };
-      persist({ ...data, memories: [...data.memories, memory] });
-      setMemoryTitle("");
-      setMemoryCaption("");
-      e.target.value = "";
-    };
-    reader.readAsDataURL(file);
+      })
+      .select("id, title, image_path, caption")
+      .single();
+
+    if (insertError) {
+      const { error: cleanupError } = await supabase.storage
+        .from("memories")
+        .remove([filePath]);
+
+      if (cleanupError) {
+        console.error("Gagal membersihkan file:", cleanupError);
+      }
+
+      setNotice("Foto gagal disimpan ke database.");
+      console.error("Simpan metadata gagal:", insertError);
+      return;
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from("memories")
+      .getPublicUrl(newMemory.image_path);
+
+    setData((current) => ({
+      ...current,
+      memories: [
+        ...current.memories,
+        {
+          id: newMemory.id,
+          title: newMemory.title,
+          image: publicUrlData.publicUrl,
+          caption: newMemory.caption,
+        },
+      ],
+    }));
+
+    setMemoryTitle("");
+    setMemoryCaption("");
+    input.value = "";
+
+    setSaved(true);
+    setNotice("Foto kenangan berhasil ditambahkan.");
+
+    window.setTimeout(() => setSaved(false), 2000);
   }
-  function removeAt<T>(
-    key: "stories" | "letters" | "memories" | "wishes",
-    index: number,
-  ) {
-    const next = [...(data[key] as T[])];
-    next.splice(index, 1);
-    persist({ ...data, [key]: next });
+
+  // fungsi handler button add image
+  async function handleAddPhoto(e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    const input = document.getElementById(
+      "photo-input"
+    ) as HTMLInputElement | null;
+
+    const file = input?.files?.[0];
+
+    if (!input || !file) {
+      setNotice("Silakan pilih foto terlebih dahulu.");
+      return;
+    }
+
+    await uploadPhoto(file, input);
+  }
+
+  // funsi untuk mengahpus photo dari database
+  async function removeMemory(memory: Memory) {
+
+    if (!memory.id) return;
+
+    const { data: row, error: readError } = await supabase
+      .from("memories")
+      .select("id, image_path")
+      .eq("id", memory.id)
+      .single();
+
+    if (readError || !row) {
+      setNotice("Data dari foto tidak ditemukan");
+      console.error("Gagal mencari foto:", readError);
+      return;
+    }
+
+    const { error: deleteError } = await supabase
+      .from("memories")
+      .delete()
+      .eq("id", memory.id);
+
+    if (deleteError) {
+      setNotice("Gagal menghapus foto dari database.");
+      console.error("Gagal menghapus metadata:", deleteError)
+      return;
+    }
+
+    const { error: storageError } = await supabase.storage
+      .from("memories")
+      .remove([row.image_path]);
+
+    if (storageError) {
+      console.error("Metadata terhapus, tetapi file Storage gagal dihapus:", storageError);
+    }
+
+    setData((current) => ({
+      ...current,
+      memories: current.memories.filter((item) => item.id !== memory.id),
+    }));
+
+    setNotice(
+      storageError
+        ? "Data foto dihapus, tetapi file gambarnya perlu di bersihkan dari storage."
+        : "Foto kenangan berhasil di hapus."
+    )
   }
 
   const nav = [
@@ -361,8 +791,9 @@ export default function AdminPage() {
                   <span>
                     <strong>{s.title}</strong>
                     <small>{s.date}</small>
+                    <small>{s.text}</small>
                   </span>
-                  <button onClick={() => removeAt<Story>("stories", i)}>
+                  <button onClick={() => removeStory(s)}>
                     Hapus
                   </button>
                 </div>
@@ -412,7 +843,7 @@ export default function AdminPage() {
                     <strong>{l.title}</strong>
                     <small>{l.message}</small>
                   </span>
-                  <button onClick={() => removeAt<Letter>("letters", i)}>
+                  <button onClick={() => removeLetter(l)}>
                     Hapus
                   </button>
                 </div>
@@ -420,6 +851,7 @@ export default function AdminPage() {
             </div>
           </section>
         )}
+
         {active === "gallery" && (
           <section className="admin-card">
             <div className="admin-card-heading">
@@ -427,59 +859,95 @@ export default function AdminPage() {
                 <span className="section-kicker">LITTLE MOMENTS, FOREVER</span>
                 <h3>Our Gallery</h3>
                 <p>
-                  Unggah gambar untuk kenangan kalian. Mode ini masih lokal dan
-                  gambar maksimal 1 MB.
+                  Tambahkan foto kenangan kalian dan simpan dalam galeri.
                 </p>
               </div>
             </div>
-            <form
-              className="admin-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                document.getElementById("photo-input")?.click();
-              }}
-            >
+
+            <form className="admin-form" onSubmit={handleAddPhoto}>
               <label>
                 Judul foto
                 <input
+                  type="text"
                   value={memoryTitle}
                   onChange={(e) => setMemoryTitle(e.target.value)}
                   placeholder="Hari pertama liburan"
                 />
               </label>
+
               <label>
                 Caption
                 <input
+                  type="text"
                   value={memoryCaption}
                   onChange={(e) => setMemoryCaption(e.target.value)}
                   placeholder="Satu hari yang hangat..."
                 />
               </label>
+
               <label className="full-field upload-field">
                 Pilih foto
                 <input
                   id="photo-input"
                   type="file"
                   accept="image/*"
-                  onChange={uploadPhoto}
+                  onChange={() => setNotice("")}
                 />
               </label>
+
+              <div className="full-field">
+                <button type="submit" className="button button-dark">
+                  + Tambah Foto
+                </button>
+              </div>
             </form>
-            <div className="admin-photo-grid">
-              {data.memories.map((m, i) => (
-                <div className="admin-photo" key={`${m.title}-${i}`}>
-                  <img src={m.image} alt={m.title} />
-                  <div>
-                    <strong>{m.title}</strong>
-                    <button onClick={() => removeAt<Memory>("memories", i)}>
-                      Hapus
-                    </button>
-                  </div>
-                </div>
-              ))}
+
+            <div className="admin-card-heading gallery-list-heading">
+              <div>
+                <span className="section-kicker">YOUR COLLECTION</span>
+                <h3>Daftar Foto Kenangan</h3>
+                <p>{data.memories.length} foto tersimpan</p>
+              </div>
             </div>
+
+            {data.memories.length === 0 ? (
+              <div className="gallery-empty">
+                <span>♡</span>
+                <strong>Belum ada foto kenangan</strong>
+                <p>Foto yang kamu tambahkan akan tampil di sini.</p>
+              </div>
+            ) : (
+              <div className="admin-photo-grid">
+                {data.memories.map((m, i) => (
+                  <div
+                    className="admin-photo"
+                    key={m.id ?? `${m.title}-${i}`}
+                  >
+                    <img src={m.image} alt={m.title} />
+
+                    <div className="admin-photo-info">
+                      <strong>{m.title}</strong>
+                      <p>{m.caption || "Tidak ada caption."}</p>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (m.id) {
+                            void removeMemory(m);
+                          }
+                        }}
+                        disabled={!m.id}
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         )}
+
         {active === "wishes" && (
           <section className="admin-card">
             <div className="admin-card-heading">
@@ -508,14 +976,7 @@ export default function AdminPage() {
                     <input
                       type="checkbox"
                       checked={w.done}
-                      onChange={(e) =>
-                        persist({
-                          ...data,
-                          wishes: data.wishes.map((x, j) =>
-                            j === i ? { ...x, done: e.target.checked } : x,
-                          ),
-                        })
-                      }
+                      onChange={() => toggleWish(w)}
                     />
                     <span>
                       <strong>{w.text}</strong>
@@ -524,7 +985,7 @@ export default function AdminPage() {
                       </small>
                     </span>
                   </label>
-                  <button onClick={() => removeAt<Wish>("wishes", i)}>
+                  <button onClick={() => removeWish(w)}>
                     Hapus
                   </button>
                 </div>

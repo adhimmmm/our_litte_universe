@@ -31,7 +31,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Suspense fallback={<div>Memuat dashboard...</div>}>
+    <Suspense>
       <ProtectedAdmin>{children}</ProtectedAdmin>
     </Suspense>
   );
