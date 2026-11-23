@@ -1,6 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap");
 @import "tailwindcss";
 
+/* ==========================================
+   1. VARIABLES & GLOBAL RESET
+========================================== */
 :root {
   --cream: #fbf7f0;
   --paper: #fffdf9;
@@ -44,6 +47,9 @@ button {
   cursor: pointer;
 }
 
+/* ==========================================
+   2. NAVIGATION & TOPBAR
+========================================== */
 .brand {
   display: inline-flex;
   align-items: center;
@@ -52,6 +58,7 @@ button {
   font-size: 19px;
   font-weight: 600;
   letter-spacing: -0.5px;
+  white-space: nowrap;
 }
 
 .brand-heart {
@@ -66,15 +73,16 @@ button {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #eadfd8;
-  background: rgba(251, 247, 240, 0.94);
+  background: rgba(251, 247, 240, 0.96);
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 40;
   backdrop-filter: blur(14px);
 }
 
 .navlinks {
   display: flex;
+  align-items: center;
   gap: 30px;
   color: #806d6b;
   font-size: 12px;
@@ -85,18 +93,56 @@ button {
   color: var(--wine);
 }
 
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .nav-pill {
   border: 1px solid #ddc8c0;
   padding: 11px 17px;
   border-radius: 30px;
   font-size: 11px;
   letter-spacing: 0.2px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.nav-pill:hover {
+  background: #f5e7e2;
+  border-color: var(--rose);
+  color: var(--wine);
 }
 
 .nav-pill span {
   margin-left: 8px;
 }
 
+/* Tombol Hamburger (Disembunyikan di Desktop) */
+.hamburger-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #ddc8c0;
+  border-radius: 10px;
+  background: #fffaf4;
+  color: var(--wine);
+  font-size: 18px;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.hamburger-btn:hover {
+  background: #f5e7e2;
+  border-color: var(--rose);
+}
+
+/* ==========================================
+   3. HERO SECTION & ILLUSTRATION
+========================================== */
 .hero {
   padding: 82px 10% 85px;
   display: grid;
@@ -280,7 +326,7 @@ button {
   z-index: 3;
 }
 
-.couple:before {
+.couple::before {
   content: "";
   position: absolute;
   width: 43px;
@@ -388,6 +434,9 @@ button {
   bottom: 55px;
 }
 
+/* ==========================================
+   4. LOVE COUNTER & SHARED SECTION HEADINGS
+========================================== */
 .love-counter {
   background: #f1e4dc;
   padding: 35px 10%;
@@ -475,6 +524,9 @@ button {
   margin: 0 0 3px;
 }
 
+/* ==========================================
+   5. STORY SECTION & PAGINATION
+========================================== */
 .story-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -519,43 +571,6 @@ button {
   max-width: 400px;
 }
 
-.story-navigation {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 18px;
-  margin-top: 28px;
-}
-
-.story-navigation button {
-  width: 42px;
-  height: 42px;
-  border: 1px solid rgba(180, 120, 140, 0.3);
-  border-radius: 50%;
-  background: transparent;
-  color: inherit;
-  font-size: 22px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.story-navigation button:hover:not(:disabled) {
-  background: #f5dce5;
-  color: #8d435f;
-  transform: scale(1.05);
-}
-
-.story-navigation button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.story-navigation span {
-  font-size: 13px;
-  opacity: 0.7;
-  font-variant-numeric: tabular-nums;
-}
-
 .card-heart {
   position: absolute;
   right: 25px;
@@ -564,6 +579,57 @@ button {
   font-size: 18px;
 }
 
+.story-navigation {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #eadbd2;
+}
+
+.story-navigation span {
+  margin: 0;
+  color: #8b6f70;
+  font-size: 13px;
+  letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
+}
+
+.story-navigation button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid #e7c8c0;
+  border-radius: 50%;
+  background: #fff9f3;
+  color: #9b555b;
+  font-size: 18px;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.story-navigation button:hover:not(:disabled) {
+  background: #9b555b;
+  border-color: #9b555b;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.story-navigation button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ==========================================
+   6. LETTERS SECTION
+========================================== */
 .letters-section {
   background: #6c3545;
   color: #fff4ed;
@@ -612,6 +678,11 @@ button {
   text-align: left;
   font-family: "Playfair Display", serif;
   font-size: 16px;
+  transition: padding-left 0.2s ease;
+}
+
+.letter-row:hover {
+  padding-left: 8px;
 }
 
 .letter-icon {
@@ -624,40 +695,11 @@ button {
   color: #e7bcb5;
 }
 
-.letter-row:hover {
-  padding-left: 8px;
-}
-
+/* ==========================================
+   7. GALLERY & MEMORIES SECTION
+========================================== */
 .gallery-section {
   background: #fbf7f0;
-}
-
-.gallery-empty {
-  min-height: 210px;
-  border: 1px dashed #d8c1b8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  text-align: center;
-  padding: 28px;
-}
-
-.empty-icon {
-  font-size: 35px;
-  color: var(--rose);
-}
-
-.gallery-empty h3 {
-  font-family: "Playfair Display", serif;
-  font-weight: 500;
-  margin: 9px 0;
-}
-
-.gallery-empty p {
-  font-size: 11px;
-  color: var(--muted);
-  margin: 0 0 15px;
 }
 
 .gallery-list-heading {
@@ -666,6 +708,7 @@ button {
 }
 
 .gallery-empty {
+  min-height: 210px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -678,30 +721,22 @@ button {
   background: #fff9fc;
 }
 
+.empty-icon,
 .gallery-empty > span {
   font-size: 32px;
   color: #d88bb5;
 }
 
+.gallery-empty h3 {
+  font-family: "Playfair Display", serif;
+  font-weight: 500;
+  margin: 9px 0;
+}
+
 .gallery-empty p {
-  margin: 0;
+  margin: 0 0 15px;
   color: #927c8b;
   font-size: 14px;
-}
-
-.admin-photo-info {
-  padding: 12px;
-}
-
-.admin-photo-info p {
-  margin: 6px 0 12px;
-  color: #927c8b;
-  font-size: 13px;
-  overflow-wrap: anywhere;
-}
-
-.admin-photo-info button {
-  cursor: pointer;
 }
 
 .memory-grid {
@@ -741,6 +776,9 @@ button {
   color: var(--muted);
 }
 
+/* ==========================================
+   8. BUCKET LIST SECTION
+========================================== */
 .bucket-section {
   background: #f0e2d9;
   padding: 75px 10%;
@@ -827,6 +865,9 @@ button {
   padding-top: 17px;
 }
 
+/* ==========================================
+   9. FOOTER & LETTER MODAL
+========================================== */
 .footer {
   padding: 29px 10%;
   display: flex;
@@ -911,7 +952,137 @@ button {
   font-size: 13px;
 }
 
-/* Admin */
+/* ==========================================
+   10. IMAGE LIGHTBOX POPUP
+========================================== */
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  background: rgba(20, 15, 18, 0.92);
+  backdrop-filter: blur(8px);
+  animation: lightboxFade 0.25s ease;
+}
+
+.lightbox-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.lightbox-content img {
+  display: block;
+  max-width: 90vw;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  animation: lightboxZoom 0.3s ease;
+}
+
+.lightbox-caption {
+  margin-top: 16px;
+  text-align: center;
+  color: #fff;
+}
+
+.lightbox-caption strong {
+  font-size: 16px;
+}
+
+.lightbox-caption p {
+  margin-top: 5px;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.lightbox-counter {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  opacity: 0.65;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 28px;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  font-size: 30px;
+  line-height: 1;
+  transition: background 0.2s ease;
+}
+
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  font-size: 24px;
+  transition: all 0.25s ease;
+  z-index: 2;
+}
+
+.lightbox-nav:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.lightbox-prev {
+  left: 30px;
+}
+
+.lightbox-next {
+  right: 30px;
+}
+
+@keyframes lightboxFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes lightboxZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ==========================================
+   11. ADMIN DASHBOARD PANEL
+========================================== */
 .admin-shell {
   min-height: 100vh;
   background: #f8f4ee;
@@ -929,6 +1100,12 @@ button {
   position: sticky;
   top: 0;
   height: 100vh;
+}
+
+.admin-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .admin-brand {
@@ -970,6 +1147,7 @@ button {
   align-items: center;
   gap: 12px;
   font-size: 12px;
+  transition: all 0.2s ease;
 }
 
 .admin-nav button > span {
@@ -1013,25 +1191,18 @@ button {
   align-items: center;
   justify-content: center;
   gap: 7px;
-
   width: 100%;
   min-height: 42px;
   padding: 10px 14px;
   margin-top: 8px;
-
   border: 1px solid rgba(244, 114, 182, 0.25);
   border-radius: 10px;
-
   background: rgba(244, 114, 182, 0.08);
   color: #e879a9;
-
   font-size: 13px;
   font-weight: 600;
   line-height: 1.4;
-
-  cursor: pointer;
   transition: all 0.2s ease;
-  box-sizing: border-box;
 }
 
 .sidebar-logout:hover {
@@ -1144,6 +1315,16 @@ button {
   margin-bottom: 22px;
 }
 
+.admin-card-heading > span {
+  background: #f5e9e3;
+  color: var(--wine);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
 .admin-card-heading h3 {
   font-family: "Playfair Display", serif;
   font-size: 24px;
@@ -1233,7 +1414,7 @@ button {
 }
 
 .full-field {
-  grid-column: 1/-1;
+  grid-column: 1 / -1;
 }
 
 .admin-form .button {
@@ -1246,24 +1427,89 @@ button {
   border: 1px dashed #d7bdb4;
 }
 
+/* ==========================================
+   12. ADMIN MANAGE LIST & STORIES
+========================================== */
 .manage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 28px;
+  padding-top: 22px;
   border-top: 1px solid var(--line);
 }
 
-.manage-list > div {
+.manage-list .admin-card-heading {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 15px;
-  padding: 14px 0;
-  border-bottom: 1px solid #f0e5de;
+  padding-bottom: 16px;
+  margin-bottom: 0;
+  border-bottom: 1px solid #eadbd2;
 }
 
-.manage-list > div > span {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.manage-list .admin-card-heading h3 {
+  margin: 0;
+  color: #4a292c;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.manage-list .admin-card-heading p {
+  margin-top: 6px;
+  color: #947b7b;
+  font-size: 12px;
+}
+
+.manage-list > div:not(.admin-card-heading):not(.story-navigation) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 0;
+  border-bottom: 1px solid #eadbd2;
+}
+
+.manage-list > div:not(.admin-card-heading):not(.story-navigation) > div {
   min-width: 0;
+}
+
+.manage-list > div:not(.admin-card-heading):not(.story-navigation) > div > span {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: #f5e9e3;
+  color: #8b555b;
+  font-family: "Playfair Display", serif;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.manage-list > div:not(.admin-card-heading):not(.story-navigation) > div > p:first-of-type {
+  margin: 0 0 4px;
+  color: #a18483;
+  font-size: 11px;
+}
+
+.manage-list > div:not(.admin-card-heading):not(.story-navigation) h4 {
+  margin: 0 0 6px;
+  color: #4a292c;
+  font-family: "Playfair Display", serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.manage-list > div:not(.admin-card-heading):not(.story-navigation) > div > p:last-of-type {
+  margin: 0;
+  color: #786664;
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
 .manage-list strong {
@@ -1279,15 +1525,28 @@ button {
   line-height: 1.6;
 }
 
-.manage-list button,
+.manage-list > div:not(.admin-card-heading):not(.story-navigation) > button,
+.manage-list > div:not(.admin-card-heading):not(.story-navigation) > button.button.button-dark,
 .admin-photo button {
-  border: 1px solid #e3cbc3;
-  color: var(--wine);
-  background: #fff9f3;
-  border-radius: 3px;
-  padding: 7px 10px;
-  font-size: 10px;
+  align-self: center;
   flex-shrink: 0;
+  padding: 8px 16px;
+  border: 1px solid #e7c8c0;
+  border-radius: 6px;
+  background: #fff9f3;
+  color: #9b555b;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  transition: all 0.2s ease;
+}
+
+.manage-list > div:not(.admin-card-heading):not(.story-navigation) > button:hover,
+.manage-list > div:not(.admin-card-heading):not(.story-navigation) > button.button.button-dark:hover,
+.admin-photo button:hover {
+  background: #9b555b;
+  border-color: #9b555b;
+  color: #fff;
 }
 
 .wish-admin {
@@ -1300,6 +1559,9 @@ button {
   accent-color: var(--wine);
 }
 
+/* ==========================================
+   13. ADMIN PHOTOS, NOTICES & FOOTER
+========================================== */
 .admin-photo-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1334,13 +1596,29 @@ button {
   overflow-wrap: anywhere;
 }
 
-.notice {
+.admin-photo-info {
+  padding: 12px;
+}
+
+.admin-photo-info p {
+  margin: 6px 0 12px;
+  color: #927c8b;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.notice,
+.admin-notice {
   background: #f6e5df;
   color: #74424b;
-  padding: 12px 15px;
+  border: 1px solid #e7c8c0;
+  border-radius: 6px;
+  padding: 12px 16px;
   margin-bottom: 18px;
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 500;
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 15px;
 }
@@ -1348,13 +1626,16 @@ button {
 .notice-success {
   background: #e6eee2;
   color: #476145;
+  border-color: #c7d9c3;
 }
 
-.notice button {
+.notice button,
+.admin-notice button {
   border: 0;
   background: transparent;
   color: inherit;
   font-size: 17px;
+  line-height: 1;
 }
 
 .admin-footer {
@@ -1368,6 +1649,9 @@ button {
   color: var(--wine);
 }
 
+/* ==========================================
+   14. RESPONSIVE MEDIA QUERIES
+========================================== */
 @media (max-width: 950px) {
   .topbar {
     padding: 0 5%;
@@ -1387,11 +1671,7 @@ button {
     transform: scale(0.9);
   }
 
-  .love-counter {
-    padding-left: 7%;
-    padding-right: 7%;
-  }
-
+  .love-counter,
   .section,
   .letters-section,
   .bucket-section {
@@ -1417,40 +1697,79 @@ button {
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
+  /* === TOPBAR & HAMBURGER DROPDOWN MOBILE === */
   .topbar {
-    height: auto;
-    min-height: 72px;
-    flex-wrap: wrap;
-    padding: 17px 6%;
-    gap: 14px;
+    height: 64px;
+    padding: 0 5%;
+    flex-wrap: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 40;
   }
 
-  .navlinks {
-    order: 3;
-    width: 100%;
-    overflow: auto;
-    gap: 20px;
-    padding: 3px 0 5px;
-  }
-
-  .navlinks a {
-    white-space: nowrap;
+  .brand {
+    font-size: 17px;
+    gap: 8px;
   }
 
   .nav-pill {
+    padding: 7px 12px;
     font-size: 10px;
-    padding: 9px 12px;
   }
 
+  .hamburger-btn {
+    display: inline-flex;
+  }
+
+  /* Menu Dropdown Tersembunyi Secara Default */
+  .navlinks {
+    display: none;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 12px 5% 16px;
+    background: rgba(251, 247, 240, 0.98);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid #eadfd8;
+    box-shadow: 0 14px 30px rgba(56, 43, 43, 0.08);
+    z-index: 39;
+  }
+
+  /* Muncul Saat State Terbuka (.open) */
+  .navlinks.open {
+    display: flex;
+    animation: slideDownMenu 0.2s ease;
+  }
+
+  .navlinks a {
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    transition: background 0.15s ease;
+  }
+
+  .navlinks a:hover,
+  .navlinks a:active {
+    background: #f3e6df;
+    color: var(--wine);
+  }
+
+  /* === HERO & SECTIONS MOBILE === */
   .hero {
     grid-template-columns: 1fr;
-    padding: 58px 7% 45px;
+    padding: 46px 7% 45px;
     gap: 20px;
   }
 
   .hero h1 {
-    font-size: 51px;
+    font-size: 46px;
   }
 
   .hero-art {
@@ -1579,69 +1898,124 @@ button {
     margin-left: auto;
   }
 
+  /* === ADMIN SIDEBAR & HAMBURGER DROPDOWN MOBILE === */
   .admin-shell {
     display: block;
   }
 
   .admin-sidebar {
-    position: relative;
-    top: auto;
-    height: auto;
-    min-height: 0;
-    padding: 15px 17px;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: 64px;
+    min-height: 64px;
+    padding: 0 5%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 250, 244, 0.98);
+    backdrop-filter: blur(14px);
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }
 
   .admin-brand {
-    padding: 0 5px 13px;
+    padding: 0;
+    font-size: 16px;
+    white-space: nowrap;
+  }
+
+  .admin-brand br {
+    display: none;
   }
 
   .sidebar-caption {
     display: none;
   }
 
+  /* Drawer / Dropdown Menu Admin di Mobile */
+  .admin-mobile-menu {
+    display: none;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 5% 18px;
+    background: rgba(255, 250, 244, 0.98);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 14px 30px rgba(56, 43, 43, 0.08);
+    z-index: 39;
+  }
+
+  .admin-mobile-menu.open {
+    display: flex;
+    animation: slideDownMenu 0.2s ease;
+  }
+
   .admin-nav {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: 4px;
   }
 
   .admin-nav button {
-    padding: 10px 7px;
-    justify-content: center;
-    gap: 6px;
-    font-size: 10px;
-  }
-
-  .admin-nav button > span {
-    font-size: 14px;
-    width: auto;
+    padding: 11px 13px;
+    border-radius: 8px;
+    font-size: 13px;
   }
 
   .sidebar-bottom {
+    margin-top: 8px;
+    padding: 12px 4px 0;
+    border-top: 1px solid #efe4dd;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sidebar-bottom > span {
     display: none;
   }
 
+  .sidebar-bottom a {
+    margin-top: 0;
+    font-size: 12px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: #f5e9e3;
+  }
+
+  .sidebar-logout {
+    width: auto;
+    min-height: 36px;
+    padding: 8px 16px;
+    margin-top: 0;
+    font-size: 12px;
+  }
+
   .admin-main {
-    padding: 24px 5%;
+    padding: 22px 5%;
   }
 
   .admin-topbar {
     align-items: flex-start;
     flex-direction: column;
+    margin-bottom: 20px;
   }
 
   .admin-topbar h1 {
-    font-size: 29px;
+    font-size: 27px;
   }
 
   .welcome-panel {
-    padding: 24px 20px;
+    padding: 22px 18px;
   }
 
   .welcome-art {
-    font-size: 75px;
+    font-size: 70px;
     padding: 0 3px;
   }
 
@@ -1678,21 +2052,94 @@ button {
   }
 
   .admin-card-heading h3 {
-    font-size: 22px;
+    font-size: 21px;
+  }
+}
+
+@keyframes slideDownMenu {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .image-lightbox {
+    padding: 16px;
+  }
+
+  .lightbox-content img {
+    max-width: 94vw;
+    max-height: 75vh;
+  }
+
+  .lightbox-close {
+    top: 12px;
+    right: 12px;
+  }
+
+  .lightbox-nav {
+    width: 38px;
+    height: 38px;
+    font-size: 19px;
+  }
+
+  .lightbox-prev {
+    left: 10px;
+  }
+
+  .lightbox-next {
+    right: 10px;
+  }
+
+  .manage-list > div:not(.admin-card-heading):not(.story-navigation) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    padding: 20px 0;
+  }
+
+  .manage-list > div:not(.admin-card-heading):not(.story-navigation) > button,
+  .manage-list > div:not(.admin-card-heading):not(.story-navigation) > button.button.button-dark {
+    justify-self: start;
+  }
+
+  .manage-list .admin-card-heading h3 {
+    font-size: 19px;
+  }
+
+  .story-navigation {
+    margin-top: 20px;
+    padding-top: 16px;
+    gap: 14px;
+  }
+
+  .story-navigation button {
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+  }
+
+  .story-navigation span {
+    font-size: 12px;
   }
 }
 
 @media (max-width: 390px) {
   .brand {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .nav-pill {
-    display: none;
+    font-size: 9.5px;
+    padding: 6px 10px;
   }
 
   .hero h1 {
-    font-size: 43px;
+    font-size: 40px;
   }
 
   .hero-actions {
@@ -1723,176 +2170,5 @@ button {
 
   .admin-stats strong {
     font-size: 27px;
-  }
-
-  .admin-nav button {
-    font-size: 9px;
-  }
-}
-
-
-
-/* Image Lightbox */
-.image-lightbox {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 30px;
-  background: rgba(20, 15, 18, 0.92);
-  backdrop-filter: blur(8px);
-  animation: lightboxFade 0.25s ease;
-}
-
-.lightbox-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 100%;
-  max-height: 100%;
-}
-
-.lightbox-content img {
-  display: block;
-  max-width: 90vw;
-  max-height: 80vh;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  border-radius: 8px;
-  animation: lightboxZoom 0.3s ease;
-}
-
-.lightbox-caption {
-  margin-top: 16px;
-  text-align: center;
-  color: #fff;
-}
-
-.lightbox-caption strong {
-  font-size: 16px;
-}
-
-.lightbox-caption p {
-  margin-top: 5px;
-  font-size: 13px;
-  opacity: 0.75;
-}
-
-.lightbox-close {
-  position: absolute;
-  top: 20px;
-  right: 28px;
-  width: 42px;
-  height: 42px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  color: white;
-  font-size: 30px;
-  line-height: 1;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.lightbox-close:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-
-/* Navigasi foto di dalam popup */
-.lightbox-nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 48px;
-  height: 48px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  z-index: 2;
-}
-
-.lightbox-nav:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.lightbox-prev {
-  left: 30px;
-}
-
-.lightbox-next {
-  right: 30px;
-}
-
-/* Nomor foto */
-.lightbox-counter {
-  display: block;
-  margin-top: 10px;
-  font-size: 12px;
-  letter-spacing: 2px;
-  opacity: 0.65;
-}
-
-@media (max-width: 600px) {
-  .lightbox-nav {
-    width: 38px;
-    height: 38px;
-    font-size: 19px;
-  }
-
-  .lightbox-prev {
-    left: 10px;
-  }
-
-  .lightbox-next {
-    right: 10px;
-  }
-}
-
-
-@keyframes lightboxFade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes lightboxZoom {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Mobile */
-@media (max-width: 600px) {
-  .image-lightbox {
-    padding: 16px;
-  }
-
-  .lightbox-content img {
-    max-width: 94vw;
-    max-height: 75vh;
-  }
-
-  .lightbox-close {
-    top: 12px;
-    right: 12px;
   }
 }

@@ -169,7 +169,7 @@ export default function Home() {
             <div className="mountain mountain-front" />
             <div className="couple couple-left" />
             <div className="couple couple-right" />
-            <span className="photo-label">you, me & our little world</span>
+            <span className="photo-label">{data.names}</span>
           </div>
           <div className="floating-note note-top">
             <span>✳</span> my favorite person
