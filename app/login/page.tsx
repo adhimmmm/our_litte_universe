@@ -197,6 +197,10 @@ export default function LoginPage() {
             </button>
           </form>
 
+          <a href="/" className="login-back-link">
+            Kembali ke halaman utama
+          </a>
+
           <div className="login-security">
             <span className="security-icon">♡</span>
             <span>Private space · Made just for us</span>
